@@ -19,7 +19,6 @@ class ApiFirebaseController extends Controller
     {
         $usersReference = $this->database->getReference('users');
         
-        // Mengatur data awal
         $usersReference->set([
             '1' => [
                 'nama_lengkap' => 'Muhammad Irfan Thoriq',

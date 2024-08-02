@@ -40,10 +40,8 @@ class ApiFeeCancelController extends Controller
 
 public function show($id)
 {
-    // Ambil data dari Firebase
     $feeCancel = $this->database->getReference('feeCancels/' . $id)->getValue();
 
-    // Jika data tidak ditemukan, kembalikan response dengan error
     if ($feeCancel === null) {
         return response()->json(['message' => 'Fee cancel not found'], 404);
     }
@@ -64,28 +62,23 @@ public function update(Request $request, $id)
     $request->validate([
         'user_id' => 'required|integer',
         'fee' => 'required|numeric',
-        'nama_lengkap' => 'required|string', // Menambahkan validasi untuk nama_lengkap
+        'nama_lengkap' => 'required|string',
     ]);
 
     try {
-        // Ambil data dari request
         $data = $request->only(['user_id', 'fee', 'nama_lengkap']);
 
-        // Update data di database
         $reference = $this->database->getReference('feeCancels/' . $id);
         $reference->update($data);
 
-        // Ambil data yang diperbarui untuk konfirmasi
         $feeCancel = $reference->getValue();
 
-        // Kirim response sukses
         return response()->json([
             'message' => 'Success Update',
             'data' => $feeCancel
         ], 200);
 
     } catch (\Exception $e) {
-        // Tangani kesalahan jika terjadi
         return response()->json([
             'message' => 'Update Failed',
             'error' => $e->getMessage()

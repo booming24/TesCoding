@@ -25,10 +25,8 @@ class ApiUserController extends Controller
         $usersSnapshot = $usersReference->getSnapshot();
         $users = $usersSnapshot->getValue();
     
-        // Pastikan $users adalah array
         if (is_array($users)) {
             $filteredUsers = array_map(function ($user) {
-                // Pastikan $user adalah array sebelum menggunakan array_filter
                 return is_array($user) ? array_filter($user, function ($value) {
                     return !is_null($value);
                 }) : $user;
@@ -36,14 +34,12 @@ class ApiUserController extends Controller
     
             return response()->json(['status' => 'success', 'data' => $filteredUsers], 200);
         } else {
-            // Jika $users bukan array, kembalikan array kosong
             return response()->json(['status' => 'success', 'data' => []], 200);
         }
     }
     
     public function login(Request $request)
     {
-        // Validasi input
         $validator = Validator::make($request->all(), [
             'nama_lengkap' => 'required|string',
             'password' => 'required|string|min:1',
@@ -53,13 +49,11 @@ class ApiUserController extends Controller
             return response()->json(['error' => $validator->errors()], 422);
         }
 
-        // Kredensial untuk autentikasi
         $credentials = [
             'nama_lengkap' => $request->input('nama_lengkap'),
             'password' => $request->input('password'),
         ];
 
-        // Cek kredensial di Firebase
         $usersReference = $this->database->getReference('users');
         $usersSnapshot = $usersReference->orderByChild('nama_lengkap')
             ->equalTo($credentials['nama_lengkap'])
@@ -72,16 +66,9 @@ class ApiUserController extends Controller
 
         $user = array_shift($users);
 
-        // Verifikasi password
         if (!Hash::check($credentials['password'], $user['password'])) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
-
-        // Buat token
-        // Di sini Anda bisa menggunakan metode yang sesuai untuk membuat token autentikasi
-        // Misalnya, menggunakan Laravel Sanctum atau Passport
-
-        // Contoh menggunakan Laravel Sanctum:
         $userModel = User::where('nama_lengkap', $user['nama_lengkap'])->first();
         $tokenResult = $userModel->createToken('authToken');
         $token = $tokenResult->plainTextToken;
@@ -94,7 +81,6 @@ class ApiUserController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input
         $validator = Validator::make($request->all(), [
             'nama_lengkap' => 'required|max:100',
             'password' => 'required',
@@ -104,10 +90,8 @@ class ApiUserController extends Controller
             return response()->json(['error' => $validator->errors()], 422);
         }
 
-        // Hash password
         $hashedPassword = bcrypt($request->password);
 
-        // Simpan data ke Firebase
         $newUser = [
             'nama_lengkap' => $request->nama_lengkap,
             'password' => $hashedPassword,
