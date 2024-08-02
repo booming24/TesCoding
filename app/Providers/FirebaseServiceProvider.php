@@ -8,19 +8,25 @@ use Kreait\Firebase\Factory;
 class FirebaseServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Register services.
      *
      * @return void
      */
     public function register()
     {
-        $this->app->singleton('firebase', function ($app) {
-            $serviceAccountPath = storage_path('firebase_credentials.json');
-            return (new Factory)
-                ->withServiceAccount($serviceAccountPath)
-                ->withDatabaseUri(env('FIREBASE_DATABASE_URL'))
-                ->create();
+        $this->app->singleton(Database::class, function ($app) {
+            $firebase = (new Factory)->withServiceAccount(config('firebase.credentials'));
+            return $firebase->createDatabase();
         });
     }
-}
 
+    /**
+     * Bootstrap services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        //
+    }
+}
